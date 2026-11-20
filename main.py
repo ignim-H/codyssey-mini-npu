@@ -6,9 +6,12 @@
 import math
 import os
 import sys
+from pathlib import Path
 
+from dataset import evaluate_patterns, load_filters, load_json
 from npu_core import EPSILON_TEXT, UNDECIDED, Matrix, judge, mac
 
+DATA_PATH = Path(__file__).resolve().parent / "data.json"  # main.py 와 같은 폴더의 data.json
 LINE = "#" + "-" * 40
 ECHO_INPUT = os.environ.get("NPU_ECHO_INPUT") == "1"  # 파일로 입력할 때 입력값도 화면에 표시
 
@@ -69,8 +72,9 @@ def select_mode():
     print()
     print("[모드 선택]")
     print("1. 사용자 입력 (3x3)")
+    print("2. data.json 분석")
     print("0. 종료")
-    valid = {0, 1}
+    valid = {0, 1, 2}
     while True:
         text = read_line("선택: ")
         if text.isdigit() and int(text) in valid:
@@ -102,6 +106,43 @@ def run_user_mode():
     else:
         print(f"판정: {decision}")
 
+# ---------------------------------------------------------------- 모드 2: data.json 분석
+def run_data_mode():
+    section("[1] 필터 로드")
+    data, error = load_json(DATA_PATH)
+    if error:
+        print(f"✗ {error}")
+        print("  → 모드 선택으로 돌아갑니다.")
+        return
+    filters, logs = load_filters(data)
+    for _, message in logs:
+        print(message)
+
+    section("[2] 패턴 분석 (라벨 정규화 적용)")
+    results = evaluate_patterns(data, filters)
+    for result in results:
+        print(f"--- {result.key} ---")
+        if result.cross_score is None:
+            print(f"FAIL: {result.reason}")
+            continue
+        print(f"Cross 점수: {result.cross_score!r}")
+        print(f"X 점수: {result.x_score!r}")
+        status = "PASS" if result.passed else "FAIL" + (" (동점 규칙)" if result.decision == UNDECIDED else "")
+        print(f"판정: {result.decision} | expected: {result.expected} | {status}")
+
+    section("[3] 결과 요약")
+    passed = [r for r in results if r.passed]
+    failed = [r for r in results if not r.passed]
+    print(f"총 테스트: {len(results)}개")
+    print(f"통과: {len(passed)}개")
+    print(f"실패: {len(failed)}개")
+    if failed:
+        print()
+        print("실패 케이스:")
+        for result in failed:
+            print(f"- {result.key}: {result.reason}")
+        print("(상세 원인 분석 및 복잡도 설명은 README.md 의 '결과 리포트' 섹션 참고)")
+
 # ---------------------------------------------------------------- 시작점
 def main():
     use_utf8_console()
@@ -113,6 +154,8 @@ def main():
                 break
             if mode == 1:
                 run_user_mode()
+            elif mode == 2:
+                run_data_mode()
     except QuitProgram:
         print()
         print("⚠️ 입력이 중단되어 프로그램을 종료합니다.")
