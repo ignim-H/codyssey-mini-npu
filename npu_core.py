@@ -1,5 +1,9 @@
 """Mini NPU 핵심: n×n 행렬(Matrix), MAC 연산, 점수 비교(epsilon), 라벨 정규화."""
 
+EPSILON = 1e-9          # |점수A - 점수B| < EPSILON 이면 동점으로 본다
+EPSILON_TEXT = "1e-9"    # 화면 표시용 (1e-09 대신)
+UNDECIDED = "UNDECIDED"  # 동점일 때의 판정 결과
+
 class Matrix:
     """n×n 크기의 2차원 숫자 배열. 위치(행, 열)로 값을 저장하고 읽는다."""
 
@@ -38,3 +42,28 @@ class Matrix:
     def to_text(self):
         """화면 출력용 문자열."""
         return "\n".join(" ".join(f"{value:g}" for value in row) for row in self.rows)
+
+def mac(pattern, filt):
+    """MAC(Multiply-Accumulate): 같은 위치끼리 곱한 값을 모두 더한다. 크기가 다르면 ValueError.
+
+    N×N 이면 곱셈 N² 번 + 덧셈 N² 번 → 시간 복잡도 O(N²).
+    """
+    if pattern.size != filt.size:
+        raise ValueError(f"크기 불일치: 패턴 {pattern.size}×{pattern.size}, 필터 {filt.size}×{filt.size}")
+    total = 0.0
+    for i in range(pattern.size):
+        pattern_row = pattern.rows[i]
+        filter_row = filt.rows[i]
+        for j in range(pattern.size):
+            total += pattern_row[j] * filter_row[j]
+    return total
+
+def judge(score_a, score_b, label_a="A", label_b="B", epsilon=EPSILON):
+    """두 점수를 허용오차 기반으로 비교해 더 큰 쪽 라벨을, 동점이면 UNDECIDED 를 돌려준다.
+
+    부동소수점은 0.1 같은 값을 정확히 표현하지 못해 수학적으로 같은 점수도
+    0.9 와 0.8999999999999999 처럼 미세하게 달라질 수 있다. 그래서 == 나 > 로 바로 비교하지 않는다.
+    """
+    if abs(score_a - score_b) < epsilon:
+        return UNDECIDED
+    return label_a if score_a > score_b else label_b
