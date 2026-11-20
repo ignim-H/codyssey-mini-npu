@@ -3,6 +3,11 @@
 EPSILON = 1e-9          # |점수A - 점수B| < EPSILON 이면 동점으로 본다
 EPSILON_TEXT = "1e-9"    # 화면 표시용 (1e-09 대신)
 UNDECIDED = "UNDECIDED"  # 동점일 때의 판정 결과
+CROSS = "Cross"          # 표준 라벨
+X = "X"                  # 표준 라벨
+
+# 데이터 파일/입력에서 올 수 있는 표기 → 표준 라벨
+LABEL_ALIASES = {"+": CROSS, "cross": CROSS, "x": X}
 
 class Matrix:
     """n×n 크기의 2차원 숫자 배열. 위치(행, 열)로 값을 저장하고 읽는다."""
@@ -67,3 +72,12 @@ def judge(score_a, score_b, label_a="A", label_b="B", epsilon=EPSILON):
     if abs(score_a - score_b) < epsilon:
         return UNDECIDED
     return label_a if score_a > score_b else label_b
+
+def normalize_label(value):
+    """'+', 'cross', 'x', 'Cross', 'X' 등 여러 표기를 표준 라벨(Cross / X)로 바꾼다. 모르는 값은 ValueError."""
+    if not isinstance(value, str):
+        raise ValueError(f"라벨이 문자열이 아닙니다: {value!r}")
+    key = value.strip().lower()
+    if key not in LABEL_ALIASES:
+        raise ValueError(f"알 수 없는 라벨: {value!r} (허용: +, cross, x)")
+    return LABEL_ALIASES[key]
