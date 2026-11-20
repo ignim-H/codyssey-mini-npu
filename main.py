@@ -9,6 +9,7 @@ import os
 import sys
 from pathlib import Path
 
+from benchmark import compare_flat, format_compare_table
 from benchmark import average_ms, format_table, measure_sizes
 from dataset import evaluate_patterns, load_filters, load_json
 from npu_core import CROSS, X
@@ -146,6 +147,10 @@ def run_data_mode():
     perf_rows = measure_sizes(bench_cases)
     print(format_table(perf_rows))
 
+    section("[보너스] 1차원 배열 최적화 전/후 비교 (같은 입력, 평균/10회)")
+    compare_rows = compare_flat(bench_cases)
+    print(format_compare_table(compare_rows))
+
     section("[4] 결과 요약")
     passed = [r for r in results if r.passed]
     failed = [r for r in results if not r.passed]
@@ -158,7 +163,7 @@ def run_data_mode():
         for result in failed:
             print(f"- {result.key}: {result.reason}")
         print("(상세 원인 분석 및 복잡도 설명은 README.md 의 '결과 리포트' 섹션 참고)")
-    save_result_json(results, perf_rows, [])
+    save_result_json(results, perf_rows, compare_rows)
 
 def build_bench_cases(filters=None):
     """성능 측정용 입력: 생성기로 만든 십자가 패턴 × (data.json 필터, 없으면 생성 필터)."""
@@ -219,6 +224,11 @@ def run_generator_mode():
         cross_score, x_score = mac(pattern, cross), mac(pattern, x_pattern)
         decision = judge(cross_score, x_score, CROSS, X)
         print(f"{label:<5} 패턴 → Cross 점수 {cross_score!r}, X 점수 {x_score!r} → 판정 {decision}")
+
+    section("[3] 1차원 배열 최적화 전/후 비교 (같은 입력, 평균/10회)")
+    sizes = sorted(set(SIZES) | {size})
+    cases = [(s, make_pattern(CROSS, s), make_pattern(CROSS, s)) for s in sizes]
+    print(format_compare_table(compare_flat(cases)))
 
 # ---------------------------------------------------------------- 시작점
 def main():
