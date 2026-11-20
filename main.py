@@ -9,7 +9,9 @@ import sys
 from pathlib import Path
 
 from dataset import evaluate_patterns, load_filters, load_json
+from npu_core import CROSS, X
 from npu_core import EPSILON_TEXT, UNDECIDED, Matrix, judge, mac
+from patterns import make_pattern
 
 DATA_PATH = Path(__file__).resolve().parent / "data.json"  # main.py 와 같은 폴더의 data.json
 LINE = "#" + "-" * 40
@@ -73,8 +75,9 @@ def select_mode():
     print("[모드 선택]")
     print("1. 사용자 입력 (3x3)")
     print("2. data.json 분석")
+    print("3. 패턴 생성기 · 최적화 비교 (보너스)")
     print("0. 종료")
-    valid = {0, 1, 2}
+    valid = {0, 1, 2, 3}
     while True:
         text = read_line("선택: ")
         if text.isdigit() and int(text) in valid:
@@ -143,6 +146,35 @@ def run_data_mode():
             print(f"- {result.key}: {result.reason}")
         print("(상세 원인 분석 및 복잡도 설명은 README.md 의 '결과 리포트' 섹션 참고)")
 
+# ---------------------------------------------------------------- 모드 3: 패턴 생성기 (보너스)
+def read_size():
+    while True:
+        text = read_line("크기 N 입력 (3 이상 99 이하의 홀수): ")
+        if not text.isdigit():
+            print("⚠️ 숫자를 입력하세요.")
+            continue
+        size = int(text)
+        if size < 3 or size > 99 or size % 2 == 0:
+            print("⚠️ 3 이상 99 이하의 홀수만 가능합니다 (가운데 칸이 있어야 십자가/X 가 대칭).")
+            continue
+        return size
+
+def run_generator_mode():
+    section("[1] 패턴 생성")
+    size = read_size()
+    cross, x_pattern = make_pattern(CROSS, size), make_pattern(X, size)
+    if size <= 13:
+        print_matrix(f"Cross {size}×{size}", cross)
+        print_matrix(f"X {size}×{size}", x_pattern)
+    else:
+        print(f"(크기 {size}×{size} 는 화면 출력을 생략합니다)")
+
+    section("[2] 생성 패턴 판정 (필터도 생성 패턴 사용)")
+    for label, pattern in ((CROSS, cross), (X, x_pattern)):
+        cross_score, x_score = mac(pattern, cross), mac(pattern, x_pattern)
+        decision = judge(cross_score, x_score, CROSS, X)
+        print(f"{label:<5} 패턴 → Cross 점수 {cross_score!r}, X 점수 {x_score!r} → 판정 {decision}")
+
 # ---------------------------------------------------------------- 시작점
 def main():
     use_utf8_console()
@@ -156,6 +188,8 @@ def main():
                 run_user_mode()
             elif mode == 2:
                 run_data_mode()
+            elif mode == 3:
+                run_generator_mode()
     except QuitProgram:
         print()
         print("⚠️ 입력이 중단되어 프로그램을 종료합니다.")
