@@ -1,0 +1,165 @@
+$ cd ~/Documents/codyssey-mini-npu
+$ git init -b main
+Initialized empty Git repository in ~/Documents/codyssey-mini-npu/.git/
+
+$ git remote add origin https://github.com/ignim-H/codyssey-mini-npu.git
+
+$ git add -A
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+
+$ git commit -m "Chore: 프로젝트 초기 설정 (.gitignore, README, data.json)"
+[main (root-commit) 7ef2c2d] Chore: 프로젝트 초기 설정 (.gitignore, README, data.json)
+ 3 files changed, 243 insertions(+)
+ create mode 100644 .gitignore
+ create mode 100644 README.md
+ create mode 100644 data.json
+
+$ git push -u origin main
+To https://github.com/ignim-H/codyssey-mini-npu.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+
+$ git add -A
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'npu_core.py', LF will be replaced by CRLF the next time Git touches it
+
+$ git commit -m "Feat: n×n Matrix 데이터 구조 구현 (위치별 저장/읽기, 형식 검증)"
+[main 9f519eb] Feat: n×n Matrix 데이터 구조 구현 (위치별 저장/읽기, 형식 검증)
+ 1 file changed, 40 insertions(+)
+ create mode 100644 npu_core.py
+
+$ git add -A
+warning: in the working copy of 'npu_core.py', LF will be replaced by CRLF the next time Git touches it
+
+$ git commit -m "Feat: MAC 연산과 epsilon 기반 점수 비교(동점=UNDECIDED) 구현"
+[main 259d275] Feat: MAC 연산과 epsilon 기반 점수 비교(동점=UNDECIDED) 구현
+ 1 file changed, 29 insertions(+)
+
+$ git add -A
+warning: in the working copy of 'npu_core.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+$ git commit -m "Feat: 모드 1 사용자 입력(3×3) 및 행/열·숫자 입력 검증 구현"
+[main f0ed7c8] Feat: 모드 1 사용자 입력(3×3) 및 행/열·숫자 입력 검증 구현
+ 1 file changed, 123 insertions(+)
+ create mode 100644 main.py
+
+$ git add -A
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'npu_core.py', LF will be replaced by CRLF the next time Git touches it
+
+$ git commit -m "Feat: 라벨 정규화 구현 (+, cross → Cross / x → X)"
+[main 64db524] Feat: 라벨 정규화 구현 (+, cross → Cross / x → X)
+ 1 file changed, 14 insertions(+)
+
+$ git add -A
+warning: in the working copy of 'dataset.py', LF will be replaced by CRLF the next time Git touches it
+
+$ git commit -m "Feat: data.json 로드·스키마 검증 및 케이스 단위 판정 구현"
+[main 70e9a29] Feat: data.json 로드·스키마 검증 및 케이스 단위 판정 구현
+ 1 file changed, 136 insertions(+)
+ create mode 100644 dataset.py
+
+$ git add -A
+warning: in the working copy of 'dataset.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+
+$ git commit -m "Feat: 모드 2 data.json 분석·PASS/FAIL·결과 요약 출력"
+[main b6530bb] Feat: 모드 2 data.json 분석·PASS/FAIL·결과 요약 출력
+ 1 file changed, 44 insertions(+), 1 deletion(-)
+
+$ git checkout -b feature/pattern-generator
+Switched to a new branch 'feature/pattern-generator'
+
+$ git add -A
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'patterns.py', LF will be replaced by CRLF the next time Git touches it
+
+$ git commit -m "Feat: N×N Cross/X 패턴 생성기 추가 (보너스)"
+[feature/pattern-generator a021501] Feat: N×N Cross/X 패턴 생성기 추가 (보너스)
+ 2 files changed, 66 insertions(+), 1 deletion(-)
+ create mode 100644 patterns.py
+
+$ git push -u origin feature/pattern-generator
+remote: 
+remote: Create a pull request for 'feature/pattern-generator' on GitHub by visiting:        
+remote:      https://github.com/ignim-H/codyssey-mini-npu/pull/new/feature/pattern-generator        
+remote: 
+To https://github.com/ignim-H/codyssey-mini-npu.git
+ * [new branch]      feature/pattern-generator -> feature/pattern-generator
+branch 'feature/pattern-generator' set up to track 'origin/feature/pattern-generator'.
+
+$ git checkout main
+Switched to branch 'main'
+Your branch is ahead of 'origin/main' by 6 commits.
+  (use "git push" to publish your local commits)
+
+$ git merge --no-ff feature/pattern-generator -m "Merge: feature/pattern-generator 브랜치 병합 (패턴 생성기)"
+Merge made by the 'ort' strategy.
+ main.py     | 36 +++++++++++++++++++++++++++++++++++-
+ patterns.py | 31 +++++++++++++++++++++++++++++++
+ 2 files changed, 66 insertions(+), 1 deletion(-)
+ create mode 100644 patterns.py
+
+$ git add -A
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'benchmark.py', LF will be replaced by CRLF the next time Git touches it
+
+$ git commit -m "Feat: 크기별 성능 분석 구현 (10회 평균 ms, 연산 횟수 N²)"
+[main ddc685c] Feat: 크기별 성능 분석 구현 (10회 평균 ms, 연산 횟수 N²)
+ 2 files changed, 83 insertions(+), 1 deletion(-)
+ create mode 100644 benchmark.py
+
+$ git checkout -b feature/flat-mac
+Switched to a new branch 'feature/flat-mac'
+
+$ git add -A
+warning: in the working copy of 'benchmark.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'npu_core.py', LF will be replaced by CRLF the next time Git touches it
+
+$ git commit -m "Perf: 1차원 배열 MAC 최적화 및 2차원 대비 전/후 비교 (보너스)"
+[feature/flat-mac 6156b76] Perf: 1차원 배열 MAC 최적화 및 2차원 대비 전/후 비교 (보너스)
+ 3 files changed, 45 insertions(+), 1 deletion(-)
+
+$ git push -u origin feature/flat-mac
+remote: 
+remote: Create a pull request for 'feature/flat-mac' on GitHub by visiting:        
+remote:      https://github.com/ignim-H/codyssey-mini-npu/pull/new/feature/flat-mac        
+remote: 
+To https://github.com/ignim-H/codyssey-mini-npu.git
+ * [new branch]      feature/flat-mac -> feature/flat-mac
+branch 'feature/flat-mac' set up to track 'origin/feature/flat-mac'.
+
+$ git checkout main
+Switched to branch 'main'
+Your branch is ahead of 'origin/main' by 9 commits.
+  (use "git push" to publish your local commits)
+
+$ git merge --no-ff feature/flat-mac -m "Merge: feature/flat-mac 브랜치 병합 (1차원 배열 최적화)"
+Merge made by the 'ort' strategy.
+ benchmark.py | 21 +++++++++++++++++++++
+ main.py      | 12 +++++++++++-
+ npu_core.py  | 13 +++++++++++++
+ 3 files changed, 45 insertions(+), 1 deletion(-)
+
+$ git add -A
+warning: in the working copy of 'tests/test_npu.py', LF will be replaced by CRLF the next time Git touches it
+
+$ git commit -m "Test: Matrix·MAC·epsilon·라벨 정규화·data.json 단위 테스트 추가"
+[main d0997d3] Test: Matrix·MAC·epsilon·라벨 정규화·data.json 단위 테스트 추가
+ 1 file changed, 117 insertions(+)
+ create mode 100644 tests/test_npu.py
+
+$ git push origin main
+To https://github.com/ignim-H/codyssey-mini-npu.git
+   7ef2c2d..d0997d3  main -> main
+
+$ git add README.md
+
+$ git commit -m "Docs: README 작성 (실행 방법·구현 요약·결과 리포트: 실패 원인·O(N²) 분석)"
+[main 2e6f73f] Docs: README 작성 (실행 방법·구현 요약·결과 리포트: 실패 원인·O(N²) 분석)
+ 1 file changed, 218 insertions(+), 2 deletions(-)
+

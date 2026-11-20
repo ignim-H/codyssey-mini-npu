@@ -1,0 +1,19 @@
+$ python -m unittest discover -s tests -v
+test_broken_cases_fail_without_crash (test_npu.DatasetTest.test_broken_cases_fail_without_crash) ... ok
+test_missing_or_broken_file (test_npu.DatasetTest.test_missing_or_broken_file) ... ok
+test_real_data_json (test_npu.DatasetTest.test_real_data_json) ... ok
+test_clear_winner (test_npu.JudgeTest.test_clear_winner) ... ok
+test_epsilon_tie (test_npu.JudgeTest.test_epsilon_tie) ... ok
+test_normalize (test_npu.LabelTest.test_normalize) ... ok
+test_unknown_label (test_npu.LabelTest.test_unknown_label) ... ok
+test_flat_equals_2d (test_npu.MacTest.test_flat_equals_2d) ... ok
+test_mission_example (test_npu.MacTest.test_mission_example) ... ok
+test_size_mismatch (test_npu.MacTest.test_size_mismatch) ... ok
+test_from_rows_rejects_bad_shape_and_values (test_npu.MatrixTest.test_from_rows_rejects_bad_shape_and_values) ... ok
+test_get_set (test_npu.MatrixTest.test_get_set) ... ok
+test_large_sizes (test_npu.MatrixTest.test_large_sizes) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.008s
+
+OK
