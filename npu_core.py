@@ -44,6 +44,10 @@ class Matrix:
         """(row, col) 위치에 값을 저장한다. 0부터 시작."""
         self.rows[row][col] = float(value)
 
+    def flatten(self):
+        """2차원 → 길이 N² 의 1차원 리스트 (행 우선 순서). 보너스: 메모리 접근 단순화."""
+        return [value for row in self.rows for value in row]
+
     def to_text(self):
         """화면 출력용 문자열."""
         return "\n".join(" ".join(f"{value:g}" for value in row) for row in self.rows)
@@ -61,6 +65,15 @@ def mac(pattern, filt):
         filter_row = filt.rows[i]
         for j in range(pattern.size):
             total += pattern_row[j] * filter_row[j]
+    return total
+
+def mac_flat(pattern_flat, filter_flat):
+    """보너스: 1차원(길이 N²) 배열끼리의 MAC. 이중 반복 대신 단일 반복으로 같은 결과를 낸다."""
+    if len(pattern_flat) != len(filter_flat):
+        raise ValueError("크기 불일치")
+    total = 0.0
+    for k in range(len(pattern_flat)):
+        total += pattern_flat[k] * filter_flat[k]
     return total
 
 def judge(score_a, score_b, label_a="A", label_b="B", epsilon=EPSILON):
