@@ -3,11 +3,13 @@
 실행: python main.py
 """
 
+import json
 import math
 import os
 import sys
 from pathlib import Path
 
+from benchmark import average_ms, format_table, measure_sizes
 from dataset import evaluate_patterns, load_filters, load_json
 from npu_core import CROSS, X
 from npu_core import EPSILON_TEXT, UNDECIDED, Matrix, judge, mac
@@ -16,6 +18,7 @@ from patterns import make_pattern
 DATA_PATH = Path(__file__).resolve().parent / "data.json"  # main.py 와 같은 폴더의 data.json
 LINE = "#" + "-" * 40
 ECHO_INPUT = os.environ.get("NPU_ECHO_INPUT") == "1"  # 파일로 입력할 때 입력값도 화면에 표시
+SIZES = (3, 5, 13, 25)  # 성능 분석 대상 크기
 
 class QuitProgram(Exception):
     """Ctrl+C / 입력 종료(EOF) 시 안전하게 끝내기 위한 신호."""
@@ -103,11 +106,16 @@ def run_user_mode():
     score_b = mac(pattern, filter_b)
     print(f"A 점수: {score_a!r}")
     print(f"B 점수: {score_b!r}")
+    elapsed = average_ms(mac, pattern, filter_a)  # 입출력 제외, MAC 함수 호출 구간만 10회 평균
+    print(f"연산 시간(평균/10회): {elapsed:.4f} ms")
     decision = judge(score_a, score_b, "A", "B")
     if decision == UNDECIDED:
         print(f"판정: 판정 불가 (|A-B| < {EPSILON_TEXT})")
     else:
         print(f"판정: {decision}")
+
+    section("[4] 성능 분석 (3×3, 평균/10회)")
+    print(format_table(measure_sizes([(3, pattern, filter_a)])))
 
 # ---------------------------------------------------------------- 모드 2: data.json 분석
 def run_data_mode():
@@ -133,7 +141,12 @@ def run_data_mode():
         status = "PASS" if result.passed else "FAIL" + (" (동점 규칙)" if result.decision == UNDECIDED else "")
         print(f"판정: {result.decision} | expected: {result.expected} | {status}")
 
-    section("[3] 결과 요약")
+    section("[3] 성능 분석 (평균/10회)")
+    bench_cases = build_bench_cases(filters)
+    perf_rows = measure_sizes(bench_cases)
+    print(format_table(perf_rows))
+
+    section("[4] 결과 요약")
     passed = [r for r in results if r.passed]
     failed = [r for r in results if not r.passed]
     print(f"총 테스트: {len(results)}개")
@@ -145,6 +158,38 @@ def run_data_mode():
         for result in failed:
             print(f"- {result.key}: {result.reason}")
         print("(상세 원인 분석 및 복잡도 설명은 README.md 의 '결과 리포트' 섹션 참고)")
+    save_result_json(results, perf_rows, [])
+
+def build_bench_cases(filters=None):
+    """성능 측정용 입력: 생성기로 만든 십자가 패턴 × (data.json 필터, 없으면 생성 필터)."""
+    cases = []
+    for size in SIZES:
+        pattern = make_pattern(CROSS, size)
+        if filters and size in filters:
+            filt = filters[size][CROSS]
+        else:
+            filt = make_pattern(CROSS, size)
+        cases.append((size, pattern, filt))
+    return cases
+
+def save_result_json(results, perf_rows, compare_rows):
+    """NPU_RESULT_JSON 환경 변수가 있으면 결과를 JSON 으로 저장한다 (README 결과 리포트 작성용)."""
+    path = os.environ.get("NPU_RESULT_JSON")
+    if not path:
+        return
+    data = {
+        "cases": [
+            {
+                "key": r.key, "cross": r.cross_score, "x": r.x_score, "decision": r.decision,
+                "expected": r.expected, "passed": r.passed, "reason": r.reason,
+            }
+            for r in results
+        ],
+        "perf": [{"size": s, "ms": ms, "ops": ops} for s, ms, ops in perf_rows],
+        "compare": [{"size": s, "ms_2d": a, "ms_1d": b, "same": same} for s, a, b, same in compare_rows],
+    }
+    with open(path, "w", encoding="utf-8") as file:
+        json.dump(data, file, ensure_ascii=False, indent=2)
 
 # ---------------------------------------------------------------- 모드 3: 패턴 생성기 (보너스)
 def read_size():
